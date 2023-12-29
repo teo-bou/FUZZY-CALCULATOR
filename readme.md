@@ -18,6 +18,7 @@ pip install -r requirements.txt
 - FAIRE ROULER LA LISTE DE CALCULS  : fait
     - la liste s'étend automatiquement : fait
     - plus que 26 variables serait bien. 
+    - petit bug : la couleur reste en focus quand on fait monter la liste
 - CREER UN MODE TEXTE AVEC UN ECHAP ( LES ARROW KEYS verticales ) 
     - créer text mode basique : fait
     - créer un curseur pour la navigation
