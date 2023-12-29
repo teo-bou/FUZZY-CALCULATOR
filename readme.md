@@ -15,7 +15,9 @@ pip install -r requirements.txt
     - création de la possibilité de travailler avec différentes grilles : en cour
     - possibilité d'ouvrir le menu puis de séléctionner une option qui te fait revenir a la liste principale.
 
-- FAIRE ROULER LA LISTE DE CALCULS 
+- FAIRE ROULER LA LISTE DE CALCULS  : fait
+    - la liste s'étend automatiquement : fait
+    - plus que 26 variables serait bien. 
 - CREER UN MODE TEXTE AVEC UN ECHAP ( LES ARROW KEYS verticales ) 
     - créer text mode basique : fait
     - créer un curseur pour la navigation
