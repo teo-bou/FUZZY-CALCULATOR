@@ -122,9 +122,22 @@ class TextInput(Bouton) :
         self.text += char
         draw_string(self.text, self.cordinates[0], self.cordinates[1], (0, 0, 0))
 
-    def del_char(self) : 
+    def del_char(self) :
+        if len(self.text) == 0 : 
+            return 
         self.text = self.text[:-1]
         self.draw()
+    
+    def enter_text_mode(self) : 
+        if self.text == "CALC" : 
+            self.text = ""
+            self.draw()
+    
+    def exit_text_mode(self) :
+        if self.text == "" : 
+            self.text = "CALC"
+            self.draw()
+        
     
     ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
     
@@ -352,15 +365,16 @@ class Interface() :
         for i in self.actions.keys() : 
                 if is_pressed(i) : 
                     if self.text_mode : 
+                        self.focused_button.exit_text_mode()
                         print("STOP text mode")
                         self.text_mode = False
                     result = self.actions[i]()
-
+                    self.focused_button = self.grid_focused.get_focused_cell()
                     if result == "TEXT MODE"  :
                         print("Text mode in interface") 
                         self.text_mode = True
-                    self.focused_button = self.grid_focused.get_focused_cell()
-                    
+                        self.focused_button.enter_text_mode()
+
                     time.sleep(self.ACTION_RATE)
                     continue
     
