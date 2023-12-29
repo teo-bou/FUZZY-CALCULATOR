@@ -95,6 +95,7 @@ class Bouton :
                 grid[j][i] = None  
     
     def focus(self) : 
+        print(f"{self.text} at {self.grid_coordinates} is focused")
         self.focused = True
         self.draw()
     
@@ -108,12 +109,29 @@ class Bouton :
 
 class TextInput(Bouton) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
-
-        action = self.text_mode
+        action = lambda : self.text_mode()
+        action()
         super().__init__(text, color, x, y, focused, action)
 
+
     def text_mode(self) : 
-        pass
+        print("TEXT MODE")
+        return "TEXT MODE"
+
+    def add_char(self, char) :
+        self.text += char
+        draw_string(self.text, self.cordinates[0], self.cordinates[1], (0, 0, 0))
+
+    def del_char(self) : 
+        self.text = self.text[:-1]
+        self.draw()
+    
+    ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
+    
+
+        
+
+
 
 #         SHEMA DE LA GRILLE
 #                        x
@@ -216,14 +234,13 @@ class Grid:
         
         button_to_unfocus.unfocus()
         cell.focus()
-        print(cell.text)
         self.__focused = [*cell.grid_coordinates]
     
     def __getitem__(self, index) :
         try : 
             return self.__grid[index]
         except IndexError :
-            raise IndexError("Index out of range : {index} not in range of {self.__grid}")
+            raise IndexError(f"Index out of range : {index} not in range of {self.__grid}")
         except Exception as e:
             raise e
         
@@ -286,7 +303,14 @@ class Grid:
                     j.draw()
 
     def __str__(self) : 
-        return str(self.width) + " " + str(self.height)
+        st = ""
+        for y in range(self.m) : 
+            for x in range(self.n) : 
+                
+                st += str(type(self.get_cell(x, y)))
+                st += " "
+            st += "\n"
+        return st
 
 
 class Interface() : 
@@ -295,34 +319,65 @@ class Interface() :
         self.menu = menu
         self.text_mode = False
         self.grid_focused = self.main_grid
-         
+        self.focused_button : TextInput = self.grid_focused.get_focused_cell()
+
+        self.actions = {   # Actions de navigation
+            "up" : lambda :  self.grid_focused.travel_y(-1),
+            "down" : lambda : self.grid_focused.travel_y(1),
+            "left" : lambda : self.grid_focused.travel_x(-1),
+            "right" :lambda : self.grid_focused.travel_x(1),
+            "enter" : lambda : self.grid_focused.get_focused_cell().action()
+        }
+
+        self.text_mode_actions = {
+            "del" : lambda : self.focused_button.del_char() ,
+            "lettres" : "/1234567895+-0,; "
+        }
+
+        self.ACTION_RATE = 0.15
     def main_loop(self) : 
-        REFRESH_RATE = 0.16
+        
         self.grid_focused.draw()
         while True :
-            if  is_pressed("up") : 
-                print("UP")
-                self.grid_focused.travel_y(-1)
-                time.sleep(REFRESH_RATE)
-            elif is_pressed("down") : 
-                print("DOWN")
-                self.grid_focused.travel_y(1)
-                time.sleep(REFRESH_RATE)
-            elif is_pressed("left") : 
-                print("LEFT")
-                self.grid_focused.travel_x(-1)
-                time.sleep(REFRESH_RATE)
-            elif is_pressed("right") : 
-                print("RIGHT")
-                self.grid_focused.travel_x(1)
-                time.sleep(REFRESH_RATE)
-            elif is_pressed("enter") :
-                #print("ACTION")
-                boutton = self.grid_focused.get_focused_cell()
-                boutton.action()
-                time.sleep(REFRESH_RATE)
-            else : 
-                time.sleep(0.01)
+            if is_pressed("/") : 
+                # DEBUG ACTIONS
+                print(self.grid_focused)
+                print(self.focused_button)
+            self.scan_actions()                
+            if self.text_mode : 
+                self.scan_text_mode_actions()
+            time.sleep(0.01)    
+    
+    def scan_actions(self) : 
+        for i in self.actions.keys() : 
+                if is_pressed(i) : 
+                    if self.text_mode : 
+                        print("STOP text mode")
+                        self.text_mode = False
+                    result = self.actions[i]()
+
+                    if result == "TEXT MODE"  :
+                        print("Text mode in interface") 
+                        self.text_mode = True
+                    self.focused_button = self.grid_focused.get_focused_cell()
+                    
+                    time.sleep(self.ACTION_RATE)
+                    continue
+    
+    def scan_text_mode_actions(self) : 
+        if is_pressed("del") : 
+            self.text_mode_actions["del"]()
+            time.sleep(self.ACTION_RATE)
+        else : 
+            for j in self.text_mode_actions["lettres"] : 
+                if is_pressed(j) : 
+                    self.focused_button.add_char(j)
+                    time.sleep(self.ACTION_RATE)
+                    break
+            
+        
+                
+            
             
     
     
@@ -356,7 +411,8 @@ grid.add_button(button4)
 
 
 for i in range(grid.height - 1) :
-    button_calcul = Bouton("CALC", black, [1, 2, 3], [i])
+    print("row created")
+    button_calcul = TextInput("CALC", black, [1, 2, 3], [i])
     bouton_valeur = Bouton("A = ", white,[0], [i], action = lambda : print("test"))
     grid.add_button(button_calcul)
     grid.add_button(bouton_valeur)
