@@ -256,7 +256,7 @@ class Grid:
                 if list[x] is not None :
                     self.focus_cell(list[x])
                     return
-            print("EDGE")
+            print(self.__grid)
             return
         if i == -1 : # Go UP
             for list in self.__grid[:y][::-1] : # On part notre cell et on va vers le haut et focus le premier bouton. 
@@ -269,15 +269,17 @@ class Grid:
     def add_button(self, button : Bouton) :
         print(f"ADD TO GRID {button.text}")
         x, y = button.grid_coordinates
-        self.__grid[button.grid_coordinates[1]][button.grid_coordinates[0]] = button
-        for i in button.x :
-            for j in button.y :
-                if i == button.grid_coordinates[0] and j == button.grid_coordinates[1] :
-                    continue
-                grid[j][i] = None 
-        self.__grid[y][x].height = self.cell_h * len(button.y)
-        self.__grid[y][x].width = self.cell_w * len(button.x)
-        self.updater_coordonees(self.__grid[y][x])
+    
+        if self.affichable(button) :
+            self.__grid[button.grid_coordinates[1]][button.grid_coordinates[0]] = button
+            for i in button.x :
+                for j in button.y :
+                    if i == button.grid_coordinates[0] and j == button.grid_coordinates[1] :
+                        continue
+                    grid[j][i] = None 
+        button.height = self.cell_h * len(button.y)
+        button.width = self.cell_w * len(button.x)
+        self.updater_coordonees(button)
     def draw(self) : 
         for row in self.__grid : 
             for cell in row : 
@@ -320,21 +322,24 @@ class ListePrincipale(Grid) :
 
 
     def move_up(self, cell : Bouton) : 
+
         x, y = cell.grid_coordinates
+        if self.affichable(cell) :
+            self[y][x] = None
         cell.changer_coordonnees(y=-1)
         self.updater_coordonees(cell)
         if self.affichable(cell) :
-            self[y][x] = None
             self[y-1][x] = cell
             cell.draw()
     
     def move_down(self, cell : Bouton) :
         x, y = cell.grid_coordinates
+        if self.affichable(cell) :
+            self[y][x] = None
         cell.changer_coordonnees(y=1)
         self.updater_coordonees(cell)
         if self.affichable(cell) :
-            self[y][x] = None
-            self[y+1][x] = cell
+            self[y+1][x] = cell 
             cell.draw()
         
 
@@ -355,20 +360,30 @@ class ListePrincipale(Grid) :
         print(x, y)
         self.focus_cell(self[y][x])
 
-"""
+    def append_list(self) : 
+        print("APPEND LIST")
+        y_pos = self.rows[-1][0].grid_coordinates[1] + 1 # A la hauteur 1 en dessous du dernier bouton
+        bouton_calcul = TextInput("CALC", black, [1, 2, 3], [y_pos])
+        bouton_valeur = Bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
+        self.add_button(bouton_calcul)
+        self.add_button(bouton_valeur)
+        self.rows.append((bouton_valeur, bouton_calcul))
+
     def travel_y(self, i):
         y = self.focused[1]
-        if y == 0 and i == -1 and self.rows[0].grid:  # On est en haut et on veut monter
+        if y == 0 and i == -1 and self.rows[0][0].grid_coordinates[1] != 0:  # On est en haut et on veut monter et il y a des boutons au dessus
             print("GO DOWN")
             self.go_down()
         elif y == self.y_div -1  and i == 1 : # On est en bas et on veut aller vers le bas :
+            if self.rows[-1][0].grid_coordinates[1] == self.y_div - 1: # On a plus de rows apres ca 
+                self.append_list()
             print("GO UP") 
             self.go_up()
         else : 
-            print(y, self.y_div)
+            print(y, self.y_div -1)
             super().travel_y(i)
 
-"""
+
 
 class Interface() : 
     def __init__(self, grid : ListePrincipale, menu = Grid) : 
