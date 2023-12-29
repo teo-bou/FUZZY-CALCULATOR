@@ -4,10 +4,6 @@ import time
 # Set the screen size
 WIDTH = 320
 HEIGHT = 240
-
-
-
-# Set the box dimensions
             
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -16,20 +12,7 @@ blue = (0, 0, 255)
 yellow = (255, 255, 0)
 green = (0, 255, 0)
 g = green
-class Caclul : 
-    def __init__() : 
-        # Une varaible qui prend le résultat
-        # Une variable qui prend ce qu'on ecrit
-        # Les deux boutons 
-        pass
 
-    def go_up() : 
-        # Methode pour faire monter le calcul dans l'UI
-        pass
-    
-    def go_down() :
-        # Methode pour faire descendre le calcul dans l'UI
-        pass
 
 
 class Bouton : 
@@ -106,8 +89,16 @@ class Bouton :
     def __str__(self) -> str:
         return self.text
         
-
 class TextInput(Bouton) :
+    """ 
+    Une extention de la classe bouton. Elle a quelques particularitée en plus. 
+    - Sa touche "action" permet de faire entrer l'interface en mode texte et donc de changer le texte
+    - En mode texte, l'interface utilise ces fonctions : 
+        - del_char permet de supprimer le dernier caractère 
+        - add_char permet d'ajouter un caractère
+        - enter_text_mode est appellé quand l'interface entre en text-mode, et permet d'effacer le texte par défaut
+        - exit text_mode est appellé quand l'interface quitte le mode texte et permet de remettre le texte par défaut si on a rien écrit
+    """
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
         action = lambda : self.text_mode()
         action()
@@ -137,38 +128,7 @@ class TextInput(Bouton) :
         if self.text == "" : 
             self.text = "CALC"
             self.draw()
-        
-    
-    ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
-    
-
-        
-
-
-
-#         SHEMA DE LA GRILLE
-#                        x
-# 
-#       ───────────────────────────────────►
-# 
-#   │   ┌────────┬────────┬────────┬────────┐
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   ├────────┼────────┼────────┼────────┤
-# y │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   ├────────┼────────┼────────┼────────┤
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   │   ├────────┼────────┼────────┼────────┤
-#   │   │        │        │        │        │
-#   │   │        │        │        │        │
-#   ▼   │        │        │        │        │
-#       └────────┴────────┴────────┴────────┘
-
+          ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
 class Grid:
     """
@@ -325,7 +285,6 @@ class Grid:
             st += "\n"
         return st
 
-
 class Interface() : 
     def __init__(self, grid : Grid, menu = Grid) : 
         self.main_grid = grid
@@ -389,10 +348,8 @@ class Interface() :
                     time.sleep(self.ACTION_RATE)
                     break
             
-        
-                
-            
-            
+
+           
     
     
 
