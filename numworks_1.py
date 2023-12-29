@@ -42,13 +42,6 @@ class Bouton :
         self.focused = focused
         self.action = action
 
-        for i in x : 
-            if i < 0 or i > grid.width - 1 : 
-                raise ValueError("x not inside Grid")
-        i = 0
-        for i in y : 
-            if i < 0 or i > grid.height -1 : 
-                raise ValueError("y ({y[i]}) not inside Grid")
 
         self.x = x
         self.y = y
@@ -56,16 +49,17 @@ class Bouton :
         # SONT SET PAR LA GRID QUAND ILS Y SONT AJOUTES
         self.height = None
         self.width = None
-        self.cordinates = None  #   (self.x[0] * grid.cell_w, self.y[0] * grid.cell_h)
+        self.coordinates = None  #   (self.x[0] * grid.cell_w, self.y[0] * grid.cell_h)
 
 
         self.grid_coordinates = [self.x[0], self.y[0]]
+    
 
     def draw(self) : 
-        if self.height is None or self.width is None or self.cordinates is None : 
-            raise ValueError("height, width, cordinates not set, button {self.text} must not be in grid yet")
+        if self.height is None or self.width is None or self.coordinates is None : 
+            raise ValueError(f"height, width, cordinates not set, button {self.text} at {self.grid_coordinates} must not be in grid yet")
         color = self.color if not self.focused else self.focused_color
-        left_top = (self.cordinates[0], self.cordinates[1]) 
+        left_top = (self.coordinates[0], self.coordinates[1]) 
         fill_rect(left_top[0], left_top[1], self.width, self.height, color)
         draw_string(self.text, left_top[0], left_top[1], (0, 0, 0))
     
@@ -87,7 +81,16 @@ class Bouton :
         self.draw()
     
     def __str__(self) -> str:
-        return self.text
+        return self.text + " " + str(self.grid_coordinates)
+
+    def changer_coordonnees(self, x = 0, y = 0) :
+        self.grid_coordinates[0] += x
+        self.grid_coordinates[1] += y
+        
+        self.x = list(map(lambda x_orginal : x_orginal + x, self.x))
+        self.y = list(map(lambda y_orginal : y_orginal + y, self.y))
+
+        self.coordinates = None # Cela permettra de lancer une erreur si les coordinates ne sont pas réevaluées par la grille après un déplacement. 
         
 class TextInput(Bouton) :
     """ 
@@ -101,7 +104,6 @@ class TextInput(Bouton) :
     """
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
         action = lambda : self.text_mode()
-        action()
         super().__init__(text, color, x, y, focused, action)
 
 
@@ -111,7 +113,7 @@ class TextInput(Bouton) :
 
     def add_char(self, char) :
         self.text += char
-        draw_string(self.text, self.cordinates[0], self.cordinates[1], (0, 0, 0))
+        draw_string(self.text, self.coordinates[0], self.coordinates[1], (0, 0, 0))
 
     def del_char(self) :
         if len(self.text) == 0 : 
@@ -161,15 +163,15 @@ class Grid:
         self.offset_x = offset_x
         self.offset_y = offset_y
 
-        self.n = x_div # division on x
-        self.m = y_div # division on y
+        self.x_div = x_div # division on x
+        self.y_div = y_div # division on y
 
-        self.width = self.n
-        self.height = self.m
+        self.width = self.x_div
+        self.height = self.y_div
 
-        self.cell_w = width//self.n
-        self.cell_h = height//self.m
-        self.__focused = [0, 0]
+        self.cell_w = width//self.x_div
+        self.cell_h = height//self.y_div
+        self.focused = [0, 0]
 
         # Contient tout les boutons.
         self.__grid = [[None for j in range(self.width)] for i in range(self.height)]
@@ -184,30 +186,36 @@ class Grid:
             raise ValueError("y not inside Grid")
         return self.__grid[y][x]
 
-    
-    
+    def updater_coordonees(self, cell : Bouton) :
+        """
+        donne au bouton ces veritables coordonées pour qu'il puisse se dessiner au bon endroit sur l'écran
+        """
+        #x, y = cell.grid_coordinates
+        cell.coordinates = (cell.x[0] * self.cell_w + self.offset_x, cell.y[0] * self.cell_h + self.offset_y)
+
+
     def get_focused_cell(self) :
         """
         retourne la cellule focused. Celle ci ne devrait pas etre nulle. 
         """
-        cell_content = self.__grid[self.__focused[1]][self.__focused[0]]
+        cell_content = self.__grid[self.focused[1]][self.focused[0]]
         if cell_content is None : 
-            print(f"Cell {self.__focused} is empty")
+            print(f"Cell {self.focused} is empty")
             print(self.__grid)
             return None
         return cell_content
     
     def focus_cell(self, cell : Bouton) :
         if cell is None : 
-            raise Exception("Can't focus an empty cell")
+            raise Exception(f"Can't focus an empty cell at {cell}")
         
-        button_to_unfocus = self.get_cell(self.__focused[0],self.__focused[1])
+        button_to_unfocus = self.get_cell(self.focused[0],self.focused[1])
         if button_to_unfocus is  None : 
-            raise Exception("Can't unfocus an empty cell")
+            print("UNFOCUSING EMPTY CELL")
         
         button_to_unfocus.unfocus()
         cell.focus()
-        self.__focused = [*cell.grid_coordinates]
+        self.focused = [*cell.grid_coordinates]
     
     def __getitem__(self, index) :
         try : 
@@ -221,7 +229,7 @@ class Grid:
         self.__grid[index] = value
     
     def travel_x(self, i) :
-        x, y = self.__focused
+        x, y = self.focused
         if i != 1 and i != -1 : 
             raise ValueError("This function only allows to travel of 1 or -1") 
         if i == 1  :  # GO RIGHT
@@ -235,11 +243,12 @@ class Grid:
                     self.focus_cell(cell)
                     return
             return
+
     def travel_y(self, i) : 
         """
         On parcour les lignes pour trouver la ligne au dessus ou au dessou qui renvoie 
         """
-        x, y = self.__focused
+        x, y = self.focused
         if i != 1 and i != -1 : 
             raise ValueError("This function only allows to travel of 1 or -1") 
         if i == 1  :  # GO DOWN
@@ -256,6 +265,7 @@ class Grid:
                     return
             print("EDGE")
             return
+        
     def add_button(self, button : Bouton) :
         print(f"ADD TO GRID {button.text}")
         x, y = button.grid_coordinates
@@ -267,26 +277,101 @@ class Grid:
                 grid[j][i] = None 
         self.__grid[y][x].height = self.cell_h * len(button.y)
         self.__grid[y][x].width = self.cell_w * len(button.x)
-        self.__grid[y][x].cordinates = (button.x[0] * self.cell_w + self.offset_x, button.y[0] * self.cell_h + self.offset_y)
-
+        self.updater_coordonees(self.__grid[y][x])
     def draw(self) : 
-        for i in self.__grid : 
-            for j in i : 
-                if j is not None : 
-                    j.draw()
+        for row in self.__grid : 
+            for cell in row : 
+                if cell is not None and self.affichable(cell) : 
+                    cell.draw()
 
     def __str__(self) : 
         st = ""
-        for y in range(self.m) : 
-            for x in range(self.n) : 
+        for y in range(self.y_div) : 
+            for x in range(self.x_div) : 
                 
                 st += str(type(self.get_cell(x, y)))
                 st += " "
             st += "\n"
         return st
 
+    def affichable(self, cell) :
+        if cell.grid_coordinates[0] < 0 or cell.grid_coordinates[0] > self.x_div - 1 : 
+            return False
+        if cell.grid_coordinates[1] < 0 or cell.grid_coordinates[1] > self.y_div - 1 : 
+            return False
+        return True
+
+
+class ListePrincipale(Grid) :
+
+    def __init__(self) : 
+        self.rows : list[tuple(Bouton, TextInput)]= []
+        self.ids = [i for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        
+
+        super().__init__(x_div=4, y_div=5)
+        for i in range(self.y_div) :
+            button_calcul = TextInput("CALC", black, [1, 2, 3], [i])
+            bouton_valeur = Bouton(self.ids.pop(0) + " = ", white,[0], [i], action = lambda : print("test"))
+            self.add_button(button_calcul)
+            self.add_button(bouton_valeur)
+            self.rows.append((bouton_valeur,button_calcul))
+        # Ajouter les rows
+
+
+    def move_up(self, cell : Bouton) : 
+        x, y = cell.grid_coordinates
+        cell.changer_coordonnees(y=-1)
+        self.updater_coordonees(cell)
+        if self.affichable(cell) :
+            self[y][x] = None
+            self[y-1][x] = cell
+            cell.draw()
+    
+    def move_down(self, cell : Bouton) :
+        x, y = cell.grid_coordinates
+        cell.changer_coordonnees(y=1)
+        self.updater_coordonees(cell)
+        if self.affichable(cell) :
+            self[y][x] = None
+            self[y+1][x] = cell
+            cell.draw()
+        
+
+    def go_down(self) : 
+        self.get_focused_cell().unfocus()
+        for i in self.rows[::-1] : # du BAS VERS LE HAUT
+            self.move_down(i[0])
+            self.move_down(i[1])
+        x, y = self.focused
+        print(x, y)
+        self.focus_cell(self[y][x])
+
+    def go_up(self) : 
+        for i in self.rows : 
+            self.move_up(i[0])
+            self.move_up(i[1])
+        x, y = self.focused
+        print(x, y)
+        self.focus_cell(self[y][x])
+
+"""
+    def travel_y(self, i):
+        y = self.focused[1]
+        if y == 0 and i == -1 and self.rows[0].grid:  # On est en haut et on veut monter
+            print("GO DOWN")
+            self.go_down()
+        elif y == self.y_div -1  and i == 1 : # On est en bas et on veut aller vers le bas :
+            print("GO UP") 
+            self.go_up()
+        else : 
+            print(y, self.y_div)
+            super().travel_y(i)
+
+"""
+
 class Interface() : 
-    def __init__(self, grid : Grid, menu = Grid) : 
+    def __init__(self, grid : ListePrincipale, menu = Grid) : 
         self.main_grid = grid
         self.menu = menu
         self.text_mode = False
@@ -307,14 +392,14 @@ class Interface() :
         }
 
         self.ACTION_RATE = 0.15
-    def main_loop(self) : 
-        
+    
+    def main_loop(self) :       
         self.grid_focused.draw()
         while True :
             if is_pressed("/") : 
                 # DEBUG ACTIONS
-                print(self.grid_focused)
-                print(self.focused_button)
+                self.grid_focused.go_down()
+                time.sleep(self.ACTION_RATE)
             self.scan_actions()                
             if self.text_mode : 
                 self.scan_text_mode_actions()
@@ -348,11 +433,10 @@ class Interface() :
                     time.sleep(self.ACTION_RATE)
                     break
             
-
            
     
     
-
+### ANCIENNE GRID MAIN ###
 #grid = Grid(offset_x=30, offset_y=30, width=WIDTH - 30, height=HEIGHT - 30)
 grid = Grid()
 # Set the box names
@@ -369,25 +453,28 @@ BOX_HEIGHT = 50
 
 
 ### Bottom bar with buttons
-button = Bouton("NFT", red, [0], [grid.m-1])
-button2 = Bouton("IFT", g, [1], [grid.m-1])
-button3 = Bouton("INT", blue, [2], [grid.m-1])
-button4 = Bouton("VAR", black, [3], [grid.m-1])
+button1 = Bouton("NFT", red, [0], [grid.y_div-1])
+button2 = Bouton("IFT", g, [1], [grid.y_div-1])
+button3 = Bouton("INT", blue, [2], [grid.y_div-1])
+button4 = Bouton("VAR", black, [3], [grid.y_div-1])
 
 
-grid.add_button(button)
+grid.add_button(button1)
 grid.add_button(button2)
 grid.add_button(button3)
 grid.add_button(button4)
 
 
+"""
 for i in range(grid.height - 1) :
     print("row created")
     button_calcul = TextInput("CALC", black, [1, 2, 3], [i])
     bouton_valeur = Bouton("A = ", white,[0], [i], action = lambda : print("test"))
     grid.add_button(button_calcul)
-    grid.add_button(bouton_valeur)
+    grid.add_button(bouton_valeur)"""
+### FIN ANCIENNE GRID ###
 
+grid = ListePrincipale()
 
 interface = Interface(grid, None)
 interface.main_loop()
