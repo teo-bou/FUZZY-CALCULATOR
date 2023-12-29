@@ -313,13 +313,8 @@ class ListePrincipale(Grid) :
 
         super().__init__(x_div=4, y_div=5)
         for i in range(self.y_div) :
-            button_calcul = TextInput("CALC", black, [1, 2, 3], [i])
-            bouton_valeur = Bouton(self.ids.pop(0) + " = ", white,[0], [i], action = lambda : print("test"))
-            self.add_button(button_calcul)
-            self.add_button(bouton_valeur)
-            self.rows.append((bouton_valeur,button_calcul))
+            self.append_list()
         # Ajouter les rows
-
 
     def move_up(self, cell : Bouton) : 
 
@@ -359,10 +354,18 @@ class ListePrincipale(Grid) :
         x, y = self.focused
         print(x, y)
         self.focus_cell(self[y][x])
+        
+        
 
     def append_list(self) : 
         print("APPEND LIST")
-        y_pos = self.rows[-1][0].grid_coordinates[1] + 1 # A la hauteur 1 en dessous du dernier bouton
+        if len(self.rows) == 0 :
+            y_pos = 0
+        else : 
+            y_pos = self.rows[-1][0].grid_coordinates[1] + 1 # A la hauteur 1 en dessous du dernier bouton
+        if len(self.ids) == 0 :
+            print("Plus de lettres")
+            return
         bouton_calcul = TextInput("CALC", black, [1, 2, 3], [y_pos])
         bouton_valeur = Bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
         self.add_button(bouton_calcul)
