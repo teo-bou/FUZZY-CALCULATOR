@@ -398,16 +398,31 @@ class class_interface() :
         self.focused_button : classtextinput = self.grid_focused.get_focused_cell()
 
         self.actions = {   # Actions de navigation
-            "up" : lambda :  self.grid_focused.travel_y(-1),
-            "down" : lambda : self.grid_focused.travel_y(1),
-            "left" : lambda : self.grid_focused.travel_x(-1),
-            "right" :lambda : self.grid_focused.travel_x(1),
-            "enter" : lambda : self.grid_focused.get_focused_cell().action()
+            KEY_UP : lambda :  self.grid_focused.travel_y(-1),
+            KEY_DOWN : lambda : self.grid_focused.travel_y(1),
+            KEY_LEFT : lambda : self.grid_focused.travel_x(-1),
+            KEY_RIGHT :lambda : self.grid_focused.travel_x(1),
+            KEY_ANS : lambda : self.grid_focused.get_focused_cell().action()
         }
 
         self.text_mode_actions = {
-            "del" : lambda : self.focused_button.del_char() ,
-            "lettres" : "/1234567895+-0,; "
+            KEY_BACKSPACE : lambda : self.focused_button.del_char() ,
+            "lettres" : [KEY_ONE,KEY_TWO,KEY_THREE,KEY_FOUR,KEY_FIVE,KEY_SIX,KEY_SEVEN,KEY_EIGHT,KEY_NINE, KEY_ZERO, KEY_ANS, KEY_COMMA]
+        }
+
+        self.key_to_char = {
+            KEY_ONE : "1",
+            KEY_TWO : "2",
+            KEY_THREE : "3",
+            KEY_FOUR : "4",
+            KEY_FIVE : "5",
+            KEY_SIX : "6",
+            KEY_SEVEN : "7",
+            KEY_EIGHT : "8",
+            KEY_NINE : "9",
+            KEY_ZERO : "0",
+            KEY_ANS : " ",
+            KEY_COMMA : ",",
         }
 
         self.action_rate_constant = 0.15
@@ -415,7 +430,7 @@ class class_interface() :
     def main_loop(self) :       
         self.grid_focused.draw()
         while True :
-            if is_pressed("/") : 
+            if keydown(KEY_PI) : 
                 # DEBUG ACTIONS
                 self.grid_focused.go_down()
                 time.sleep(self.action_rate_constant)
@@ -442,13 +457,13 @@ class class_interface() :
                     continue
     
     def scan_text_mode_actions(self) : 
-        if is_pressed("del") : 
-            self.text_mode_actions["del"]()
+        if keydown(KEY_BACKSPACE) : 
+            self.text_mode_actions[KEY_BACKSPACE]()
             time.sleep(self.action_rate_constant)
         else : 
             for j in self.text_mode_actions["lettres"] : 
                 if is_pressed(j) : 
-                    self.focused_button.add_char(j)
+                    self.focused_button.add_char(self.key_to_char[j])
                     time.sleep(self.action_rate_constant)
                     break
             
