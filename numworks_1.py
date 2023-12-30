@@ -2,8 +2,8 @@ from  ion import get_keys, is_pressed
 from kandinsky import *
 import time
 # Set the screen size
-WIDTH = 320
-HEIGHT = 240
+width_constant = 320
+height_constant = 240
             
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -15,7 +15,7 @@ g = green
 
 
 
-class Bouton : 
+class class_bouton : 
     """
     Cette classe permet d'initialiser ce qui se rapproche le plus d'un bouton (le bouton est toujours rectangulaire ): 
     Il a les propriété suivante : 
@@ -57,7 +57,8 @@ class Bouton :
 
     def draw(self) : 
         if self.height is None or self.width is None or self.coordinates is None : 
-            raise ValueError(f"height, width, cordinates not set, button {self.text} at {self.grid_coordinates} must not be in grid yet")
+            pass
+            #raise ValueError(f"height, width, cordinates not set, button {self.text} at {self.grid_coordinates} must not be in grid yet")
         color = self.color if not self.focused else self.focused_color
         left_top = (self.coordinates[0], self.coordinates[1]) 
         fill_rect(left_top[0], left_top[1], self.width, self.height, color)
@@ -92,7 +93,7 @@ class Bouton :
 
         self.coordinates = None # Cela permettra de lancer une erreur si les coordinates ne sont pas réevaluées par la grille après un déplacement. 
         
-class TextInput(Bouton) :
+class classtextinput(class_bouton) :
     """ 
     Une extention de la classe bouton. Elle a quelques particularitée en plus. 
     - Sa touche "action" permet de faire entrer l'interface en mode texte et donc de changer le texte
@@ -132,7 +133,7 @@ class TextInput(Bouton) :
             self.draw()
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
-class Grid:
+class class_grid:
     """
     La grille contient l'ensemble des boutons. Ici, chaque élément est appellé une "cell".
     On accède au contenu de la grille avec la methode get_cell(x, y)
@@ -156,7 +157,7 @@ class Grid:
     Les valeurs par défaut sont celles de la grille principale
 
     """
-    def __init__(self, offset_x = 0, offset_y = 0, width = WIDTH, height = HEIGHT, x_div = 4, y_div = 5) :   
+    def __init__(self, offset_x = 0, offset_y = 0, width = width_constant, height = height_constant, x_div = 4, y_div = 5) :   
         """
         On initialise la grille avec sa hauteur et sa largeur
         """
@@ -180,13 +181,15 @@ class Grid:
         """
         retourne la cellule
         """
-        if x < 0 or x > self.width - 1 : 
-            raise ValueError("x not inside Grid")
-        if y < 0 or y > self.height -1 : 
-            raise ValueError("y not inside Grid")
+        if x < 0 or x > self.width - 1 :
+            pass 
+            #raise ValueError("x not inside Grid")
+        if y < 0 or y > self.height -1 :
+            pass 
+            #raise ValueError("y not inside Grid")
         return self.__grid[y][x]
 
-    def updater_coordonees(self, cell : Bouton) :
+    def updater_coordonees(self, cell : class_bouton) :
         """
         donne au bouton ces veritables coordonées pour qu'il puisse se dessiner au bon endroit sur l'écran
         """
@@ -205,9 +208,10 @@ class Grid:
             return None
         return cell_content
     
-    def focus_cell(self, cell : Bouton) :
-        if cell is None : 
-            raise Exception(f"Can't focus an empty cell at {cell}")
+    def focus_cell(self, cell : class_bouton) :
+        if cell is None :
+            pass 
+            #raise Exception(f"Can't focus an empty cell at {cell}")
         
         button_to_unfocus = self.get_cell(self.focused[0],self.focused[1])
         if button_to_unfocus is  None : 
@@ -217,21 +221,19 @@ class Grid:
         cell.focus()
         self.focused = [*cell.grid_coordinates]
     
-    def __getitem__(self, index) :
-        try : 
+    def __getitem__(self, index) : 
             return self.__grid[index]
-        except IndexError :
-            raise IndexError(f"Index out of range : {index} not in range of {self.__grid}")
-        except Exception as e:
-            raise e
+        
         
     def __setitem__(self,  index, value) :
         self.__grid[index] = value
     
     def travel_x(self, i) :
+        """
+        n'admet que 1 et -1
+        """
         x, y = self.focused
-        if i != 1 and i != -1 : 
-            raise ValueError("This function only allows to travel of 1 or -1") 
+    
         if i == 1  :  # GO RIGHT
             for cell in self.__grid[y][x+1:] : 
                 if cell is not None :
@@ -246,11 +248,10 @@ class Grid:
 
     def travel_y(self, i) : 
         """
-        On parcour les lignes pour trouver la ligne au dessus ou au dessou qui renvoie 
+        On parcour les lignes pour trouver la ligne au dessus ou au dessou qui renvoie
+        n'admet que 1 et -1 
         """
         x, y = self.focused
-        if i != 1 and i != -1 : 
-            raise ValueError("This function only allows to travel of 1 or -1") 
         if i == 1  :  # GO DOWN
             for list in self.__grid[y+1:] : 
                 if list[x] is not None :
@@ -266,7 +267,7 @@ class Grid:
             print("EDGE")
             return
         
-    def add_button(self, button : Bouton) :
+    def add_button(self, button : class_bouton) :
         print(f"ADD TO GRID {button.text}")
         x, y = button.grid_coordinates
     
@@ -304,10 +305,10 @@ class Grid:
         return True
 
 
-class ListePrincipale(Grid) :
+class class_liste_principale(class_grid) :
 
     def __init__(self) : 
-        self.rows : list[tuple(Bouton, TextInput)]= []
+        self.rows : list[tuple(class_bouton, classtextinput)]= []
         self.ids = [i for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
         
 
@@ -316,7 +317,7 @@ class ListePrincipale(Grid) :
             self.append_list()
         # Ajouter les rows
 
-    def move_up(self, cell : Bouton) : 
+    def move_up(self, cell : class_bouton) : 
 
         x, y = cell.grid_coordinates
         if self.affichable(cell) :
@@ -327,7 +328,7 @@ class ListePrincipale(Grid) :
             self[y-1][x] = cell
             cell.draw()
     
-    def move_down(self, cell : Bouton) :
+    def move_down(self, cell : class_bouton) :
         x, y = cell.grid_coordinates
         if self.affichable(cell) :
             self[y][x] = None
@@ -366,8 +367,8 @@ class ListePrincipale(Grid) :
         if len(self.ids) == 0 :
             print("Plus de lettres")
             return
-        bouton_calcul = TextInput("CALC", black, [1, 2, 3], [y_pos])
-        bouton_valeur = Bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
+        bouton_calcul = classtextinput("CALC", black, [1, 2, 3], [y_pos])
+        bouton_valeur = class_bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
         self.add_button(bouton_calcul)
         self.add_button(bouton_valeur)
         self.rows.append((bouton_valeur, bouton_calcul))
@@ -388,13 +389,13 @@ class ListePrincipale(Grid) :
 
 
 
-class Interface() : 
-    def __init__(self, grid : ListePrincipale, menu = Grid) : 
+class class_interface() : 
+    def __init__(self, grid : class_liste_principale, menu = class_grid) : 
         self.main_grid = grid
         self.menu = menu
         self.text_mode = False
         self.grid_focused = self.main_grid
-        self.focused_button : TextInput = self.grid_focused.get_focused_cell()
+        self.focused_button : classtextinput = self.grid_focused.get_focused_cell()
 
         self.actions = {   # Actions de navigation
             "up" : lambda :  self.grid_focused.travel_y(-1),
@@ -409,7 +410,7 @@ class Interface() :
             "lettres" : "/1234567895+-0,; "
         }
 
-        self.ACTION_RATE = 0.15
+        self.action_rate_constant = 0.15
     
     def main_loop(self) :       
         self.grid_focused.draw()
@@ -417,7 +418,7 @@ class Interface() :
             if is_pressed("/") : 
                 # DEBUG ACTIONS
                 self.grid_focused.go_down()
-                time.sleep(self.ACTION_RATE)
+                time.sleep(self.action_rate_constant)
             self.scan_actions()                
             if self.text_mode : 
                 self.scan_text_mode_actions()
@@ -437,18 +438,18 @@ class Interface() :
                         self.text_mode = True
                         self.focused_button.enter_text_mode()
 
-                    time.sleep(self.ACTION_RATE)
+                    time.sleep(self.action_rate_constant)
                     continue
     
     def scan_text_mode_actions(self) : 
         if is_pressed("del") : 
             self.text_mode_actions["del"]()
-            time.sleep(self.ACTION_RATE)
+            time.sleep(self.action_rate_constant)
         else : 
             for j in self.text_mode_actions["lettres"] : 
                 if is_pressed(j) : 
                     self.focused_button.add_char(j)
-                    time.sleep(self.ACTION_RATE)
+                    time.sleep(self.action_rate_constant)
                     break
             
            
@@ -456,25 +457,17 @@ class Interface() :
     
 ### ANCIENNE GRID MAIN ###
 #grid = Grid(offset_x=30, offset_y=30, width=WIDTH - 30, height=HEIGHT - 30)
-grid = Grid()
+grid = class_grid()
 # Set the box names
-BOX_NAMES = ["NFT", "IFT", "INT", "VAR"]
 colors = [red, g, blue, black]
-bottom_menue = [
-    {"text" : "NFT", "color" : red},
-    {"text" : "IFT", "color" : g},
-    {"text" : "INT", "color" : blue},
-    {"text" : "VAR", "color" : black},
-]
-BOX_WIDTH = WIDTH // len(bottom_menue)
-BOX_HEIGHT = 50
+
 
 
 ### Bottom bar with buttons
-button1 = Bouton("NFT", red, [0], [grid.y_div-1])
-button2 = Bouton("IFT", g, [1], [grid.y_div-1])
-button3 = Bouton("INT", blue, [2], [grid.y_div-1])
-button4 = Bouton("VAR", black, [3], [grid.y_div-1])
+button1 = class_bouton("NFT", red, [0], [grid.y_div-1])
+button2 = class_bouton("IFT", g, [1], [grid.y_div-1])
+button3 = class_bouton("INT", blue, [2], [grid.y_div-1])
+button4 = class_bouton("VAR", black, [3], [grid.y_div-1])
 
 
 grid.add_button(button1)
@@ -492,7 +485,7 @@ for i in range(grid.height - 1) :
     grid.add_button(bouton_valeur)"""
 ### FIN ANCIENNE GRID ###
 
-grid = ListePrincipale()
+grid = class_liste_principale()
 
-interface = Interface(grid, None)
+interface = class_interface(grid, None)
 interface.main_loop()
