@@ -29,6 +29,6 @@ pip install -r requirements.txt
 
 # Attention
 
-python sur nomworks ne supporte pas les décorateurs comme ```@property```. Merci de ne pas les utiliser ainsi que des package autres que maths, time et ceux dans le requirement.txt. Les autres packages ne sont pas présent sur la numworks a priori.
+python sur nomworks ne supporte pas les décorateurs comme ```@property```. Merci de ne pas les utiliser ainsi que des package autres que maths, time et ceux dans le requirement.txt. Les autres packages ne sont pas présent sur la numworks a priori. Il faut également que les noms de variables soient en minuscule et sans accent. Les f string ne sont pas supportées
 
 

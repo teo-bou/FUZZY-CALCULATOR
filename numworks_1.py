@@ -73,7 +73,7 @@ class class_bouton :
                 grid[j][i] = None  
     
     def focus(self) : 
-        print(f"{self.text} at {self.grid_coordinates} is focused")
+        print(self.text,"at" ,self.grid_coordinates, "is focused")
         self.focused = True
         self.draw()
     
@@ -203,7 +203,7 @@ class class_grid:
         """
         cell_content = self.__grid[self.focused[1]][self.focused[0]]
         if cell_content is None : 
-            print(f"Cell {self.focused} is empty")
+            print("Cell",{self.focused},"is empty")
             print(self.__grid)
             return None
         return cell_content
@@ -268,7 +268,7 @@ class class_grid:
             return
         
     def add_button(self, button : class_bouton) :
-        print(f"ADD TO GRID {button.text}")
+        print("ADD TO GRID", button.text)
         x, y = button.grid_coordinates
     
         if self.affichable(button) :
