@@ -219,7 +219,7 @@ class class_grid:
         
         button_to_unfocus.unfocus()
         cell.focus()
-        self.focused = [*cell.grid_coordinates]
+        self.focused = [cell.grid_coordinates[0], cell.grid_coordinates[1]]
     
     def __getitem__(self, index) : 
             return self.__grid[index]
