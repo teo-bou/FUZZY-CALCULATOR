@@ -1,4 +1,4 @@
-from  ion import is_pressed
+from  ion import *
 from kandinsky import *
 import time
 # Set the screen size
