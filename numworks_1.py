@@ -92,7 +92,8 @@ class class_bouton :
         self.y = list(map(lambda y_orginal : y_orginal + y, self.y))
 
         self.coordinates = None # Cela permettra de lancer une erreur si les coordinates ne sont pas réevaluées par la grille après un déplacement. 
-        
+
+
 class classtextinput(class_bouton) :
     """ 
     Une extention de la classe bouton. Elle a quelques particularitée en plus. 
@@ -106,7 +107,20 @@ class classtextinput(class_bouton) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
         action = lambda : self.text_mode()
         super().__init__(text, color, x, y, focused, action)
-
+        self.key_to_char = {
+            KEY_ONE : "1",
+            KEY_TWO : "2",
+            KEY_THREE : "3",
+            KEY_FOUR : "4",
+            KEY_FIVE : "5",
+            KEY_SIX : "6",
+            KEY_SEVEN : "7",
+            KEY_EIGHT : "8",
+            KEY_NINE : "9",
+            KEY_ZERO : "0",
+            KEY_ANS : " ",
+            KEY_COMMA : ",",
+        }
 
     def text_mode(self) : 
         print("TEXT MODE")
@@ -116,6 +130,9 @@ class classtextinput(class_bouton) :
         self.text += char
         draw_string(self.text, self.coordinates[0], self.coordinates[1], (0, 0, 0))
 
+    def add_char_with_action(self, key_number) :
+        self.add_char(self.key_to_char[key_number])
+    
     def del_char(self) :
         if len(self.text) == 0 : 
             return 
@@ -132,6 +149,7 @@ class classtextinput(class_bouton) :
             self.text = "CALC"
             self.draw()
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
+
 
 class class_grid:
     """
@@ -273,11 +291,13 @@ class class_grid:
     
         if self.affichable(button) :
             self.__grid[button.grid_coordinates[1]][button.grid_coordinates[0]] = button
+            # Efface tout ce qu'il y avais a l'endroit ou est le nouveau bouton
             for i in button.x :
                 for j in button.y :
                     if i == button.grid_coordinates[0] and j == button.grid_coordinates[1] :
                         continue
-                    grid[j][i] = None 
+                    self.__grid[j][i] = None 
+
         button.height = self.cell_h * len(button.y)
         button.width = self.cell_w * len(button.x)
         self.updater_coordonees(button)
@@ -318,7 +338,10 @@ class class_liste_principale(class_grid) :
         # Ajouter les rows
 
     def move_up(self, cell : class_bouton) : 
-
+        """
+        bouge un bouton de 1 vers le haut
+        ATTENTION : elle écrase la cellule vers laquelle le bouton est déplacé
+        """
         x, y = cell.grid_coordinates
         if self.affichable(cell) :
             self[y][x] = None
@@ -329,6 +352,10 @@ class class_liste_principale(class_grid) :
             cell.draw()
     
     def move_down(self, cell : class_bouton) :
+        """
+        bouge un bouton de 1 vers le bas. 
+        ATTENTION : elle écrase la cellule vers la quelle le bouton est déplacé
+        """
         x, y = cell.grid_coordinates
         if self.affichable(cell) :
             self[y][x] = None
@@ -340,8 +367,11 @@ class class_liste_principale(class_grid) :
         
 
     def go_down(self) : 
+        """
+        fait descendre tout les boutons
+        """
         self.get_focused_cell().unfocus()
-        for i in self.rows[::-1] : # du BAS VERS LE HAUT
+        for i in self.rows[::-1] : # du BAS VERS LE HAUT pour qu'aucun bouton ne soit écrasé
             self.move_down(i[0])
             self.move_down(i[1])
         x, y = self.focused
@@ -349,6 +379,9 @@ class class_liste_principale(class_grid) :
         self.focus_cell(self[y][x])
 
     def go_up(self) : 
+        """
+        fait monter tout les boutons
+        """
         for i in self.rows : 
             self.move_up(i[0])
             self.move_up(i[1])
@@ -388,7 +421,6 @@ class class_liste_principale(class_grid) :
             super().travel_y(i)
 
 
-
 class class_interface() : 
     def __init__(self, grid : class_liste_principale, menu = class_grid) : 
         self.main_grid = grid
@@ -398,11 +430,11 @@ class class_interface() :
         self.focused_button : classtextinput = self.grid_focused.get_focused_cell()
 
         self.actions = {   # Actions de navigation
-            KEY_UP : lambda :  self.grid_focused.travel_y(-1),
-            KEY_DOWN : lambda : self.grid_focused.travel_y(1),
+            KEY_UP : lambda :  self.grid_focused.travel_y(-1), # touche echap
+            KEY_DOWN : lambda : self.grid_focused.travel_y(1), # touche 1
             KEY_LEFT : lambda : self.grid_focused.travel_x(-1),
-            KEY_RIGHT :lambda : self.grid_focused.travel_x(1),
-            KEY_ANS : lambda : self.grid_focused.get_focused_cell().action()
+            KEY_RIGHT :lambda : self.grid_focused.travel_x(1), # touche 2
+            KEY_ANS : lambda : self.grid_focused.get_focused_cell().action() # touche . sur le clavier
         }
 
         self.text_mode_actions = {
@@ -410,30 +442,20 @@ class class_interface() :
             "lettres" : [KEY_ONE,KEY_TWO,KEY_THREE,KEY_FOUR,KEY_FIVE,KEY_SIX,KEY_SEVEN,KEY_EIGHT,KEY_NINE, KEY_ZERO, KEY_ANS, KEY_COMMA]
         }
 
-        self.key_to_char = {
-            KEY_ONE : "1",
-            KEY_TWO : "2",
-            KEY_THREE : "3",
-            KEY_FOUR : "4",
-            KEY_FIVE : "5",
-            KEY_SIX : "6",
-            KEY_SEVEN : "7",
-            KEY_EIGHT : "8",
-            KEY_NINE : "9",
-            KEY_ZERO : "0",
-            KEY_ANS : " ",
-            KEY_COMMA : ",",
-        }
+        
 
         self.action_rate_constant = 0.15
     
     def main_loop(self) :       
         self.grid_focused.draw()
         while True :
-            if keydown(KEY_PI) : 
+        ### LE DEBUG FAIT TOUT BEUGUER C NORMAL ###
+            if keydown(KEY_PI) :# Touche P sur le clavier 
                 # DEBUG ACTIONS
                 self.grid_focused.go_down()
                 time.sleep(self.action_rate_constant)
+        ### LE DEBUG FAIT TOUT BEUGUER C NORMAL ###
+                
             self.scan_actions()                
             if self.text_mode : 
                 self.scan_text_mode_actions()
@@ -457,48 +479,18 @@ class class_interface() :
                     continue
     
     def scan_text_mode_actions(self) : 
-        if keydown(KEY_BACKSPACE) : 
+        if keydown(KEY_BACKSPACE) : # Touche H sur le clavier
             self.text_mode_actions[KEY_BACKSPACE]()
             time.sleep(self.action_rate_constant)
         else : 
             for j in self.text_mode_actions["lettres"] : 
                 if is_pressed(j) : 
-                    self.focused_button.add_char(self.key_to_char[j])
+                    self.focused_button.add_char_with_action(j)
                     time.sleep(self.action_rate_constant)
                     break
             
            
-    
-    
-### ANCIENNE GRID MAIN ###
-#grid = Grid(offset_x=30, offset_y=30, width=WIDTH - 30, height=HEIGHT - 30)
-grid = class_grid()
-# Set the box names
-colors = [red, g, blue, black]
 
-
-
-### Bottom bar with buttons
-button1 = class_bouton("NFT", red, [0], [grid.y_div-1])
-button2 = class_bouton("IFT", g, [1], [grid.y_div-1])
-button3 = class_bouton("INT", blue, [2], [grid.y_div-1])
-button4 = class_bouton("VAR", black, [3], [grid.y_div-1])
-
-
-grid.add_button(button1)
-grid.add_button(button2)
-grid.add_button(button3)
-grid.add_button(button4)
-
-
-"""
-for i in range(grid.height - 1) :
-    print("row created")
-    button_calcul = TextInput("CALC", black, [1, 2, 3], [i])
-    bouton_valeur = Bouton("A = ", white,[0], [i], action = lambda : print("test"))
-    grid.add_button(button_calcul)
-    grid.add_button(bouton_valeur)"""
-### FIN ANCIENNE GRID ###
 
 grid = class_liste_principale()
 
