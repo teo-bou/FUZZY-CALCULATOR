@@ -116,7 +116,8 @@ class Trapèseflou():
         else:
             return self * self ** (value - 1)
 
-    def __div__(self, other):
+
+    def __truediv__(self, other):
         return self * (other ** -1)
 
     def __neg__(self):
@@ -162,5 +163,6 @@ class Trapèseflou():
             return Intervalle_net_continu(A1, A2)
         else:
             return None  # rien dans l'alpha coupe
+
 
 
