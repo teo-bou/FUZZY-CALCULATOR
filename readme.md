@@ -29,8 +29,15 @@ pip install -r requirements.txt
 
 # Attention
 
-python sur nomworks ne supporte pas les décorateurs comme ```@property```. Merci de ne pas les utiliser ainsi que des package autres que maths, time et ceux dans le requirement.txt. Les autres packages ne sont pas présent sur la numworks a priori. Il faut également que les noms de variables soient en minuscule et sans accent. Les f string ne sont pas supportées. On ne peut pas non plus utiliser *variable_liste pour passer les éléments d'une liste d'un coup.
+- Ne pas utiliser les décorateurs comme ```@property```
+- Ne pas utiliser d'autres packages que maths, time et ceux dans le requirement.txt
+- Les noms de variables doivent être en minuscule et sans accent
+- Les f string ne sont pas supportées
+- On ne peut pas utiliser *variable_liste pour passer les éléments d'une liste d'un coup
+- Les ```raise error``` ne fonctionnent pas
+- Les variables ne doivent pas avoir de majuscule.
 
+Tout cela n'est pas permis par la numworks qui ne supporte pas ces feature de python. 
 
 # Structure de l'interface 
 **la class bouton** : il fit dans la grid, il contient des infos sur ou il est dans la grid. De la, c'est la grid qui lui donne sa position sur l'écran, et sa taille pour qu'il puisse etre déssiné
@@ -45,4 +52,5 @@ python sur nomworks ne supporte pas les décorateurs comme ```@property```. Merc
 
 **la classe Interface**
 C'est elle qui récolte les inputs. Elle controle les deux grid (bientot deux) qui composent l'interface. C'est aussi elle qui gère le text mode et donc l'envoi du caractère au text input
+
 
