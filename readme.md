@@ -32,3 +32,17 @@ pip install -r requirements.txt
 python sur nomworks ne supporte pas les décorateurs comme ```@property```. Merci de ne pas les utiliser ainsi que des package autres que maths, time et ceux dans le requirement.txt. Les autres packages ne sont pas présent sur la numworks a priori. Il faut également que les noms de variables soient en minuscule et sans accent. Les f string ne sont pas supportées. On ne peut pas non plus utiliser *variable_liste pour passer les éléments d'une liste d'un coup.
 
 
+# Structure de l'interface 
+**la class bouton** : il fit dans la grid, il contient des infos sur ou il est dans la grid. De la, c'est la grid qui lui donne sa position sur l'écran, et sa taille pour qu'il puisse etre déssiné
+
+
+**la class textinput**
+
+**la class grid** : Elle a une hauteur et une largeur. Elle divise l'écran et contient les boutons. Elle contient également l'information de la cellule sur la quelle on est focus. C'est aussi elle qui gère le fait de focuser une de ses cell, et de déplacer le focus vers le haut ou le bas. on y ajoute des boutons via add bouton. 
+
+**la class liste_principale** : elle est une grid spéciale : elle contient des éléments bien définis, en colonne. elle se charge de déplacer les éléments qu'elle contient vers le haut, ou vers le bas quand on arrive en haut ou en bas de la liste. son self.rows contient tout les boutons, meme ceux en dehors de l'écran
+
+
+**la classe Interface**
+C'est elle qui récolte les inputs. Elle controle les deux grid (bientot deux) qui composent l'interface. C'est aussi elle qui gère le text mode et donc l'envoi du caractère au text input
+
