@@ -435,6 +435,7 @@ class class_interface() :
             KEY_LEFT : lambda : self.grid_focused.travel_x(-1),
             KEY_RIGHT :lambda : self.grid_focused.travel_x(1), # touche 2
             KEY_ANS : lambda : self.grid_focused.get_focused_cell().action() # touche . sur le clavier
+            # On remplacera ans par exe et ans servira a mettre le dernier  résutat dans le calcul
         }
 
         self.text_mode_actions = {
@@ -463,7 +464,7 @@ class class_interface() :
     
     def scan_actions(self) : 
         for i in self.actions.keys() : 
-                if is_pressed(i) : 
+                if keydown(i) : 
                     if self.text_mode : 
                         self.focused_button.exit_text_mode()
                         print("STOP text mode")
@@ -484,15 +485,12 @@ class class_interface() :
             time.sleep(self.action_rate_constant)
         else : 
             for j in self.text_mode_actions["lettres"] : 
-                if is_pressed(j) : 
+                if keydown(j) : 
                     self.focused_button.add_char_with_action(j)
                     time.sleep(self.action_rate_constant)
                     break
             
-           
-
 
 grid = class_liste_principale()
-
 interface = class_interface(grid, None)
 interface.main_loop()
