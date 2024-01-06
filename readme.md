@@ -8,6 +8,15 @@ pip install -r requirements.txt
 ```
 *sur certaines machines, vous devrez peut etre lancer le programme en mode administrateur.*
 
+Les controles : 
+Voici les nouveaux controles : 
+
+- les fleches pour bouger 
+- entrée pour rentrer en mode texte
+- maj pour faire un espace 
+- point pour faire un point
+- les touches des numéros pour faire des numéros
+
 # A faire 
 
 - AJOUTER UN MENU 

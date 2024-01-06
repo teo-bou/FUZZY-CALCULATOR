@@ -119,7 +119,8 @@ class classtextinput(class_bouton) :
             KEY_NINE : "9",
             KEY_ZERO : "0",
             KEY_ANS : " ",
-            KEY_COMMA : ",",
+            KEY_DOT : ".",
+            KEY_SHIFT : " ",
         }
 
     def text_mode(self) : 
@@ -150,6 +151,13 @@ class classtextinput(class_bouton) :
             self.draw()
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
+
+class bouton_calcul(classtextinput) :
+    def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
+        super().__init__(text, color, x, y, focused, action)
+        self.resultat = None
+    
+    
 
 class class_grid:
     """
@@ -434,13 +442,13 @@ class class_interface() :
             KEY_DOWN : lambda : self.grid_focused.travel_y(1), # touche 1
             KEY_LEFT : lambda : self.grid_focused.travel_x(-1),
             KEY_RIGHT :lambda : self.grid_focused.travel_x(1), # touche 2
-            KEY_ANS : lambda : self.grid_focused.get_focused_cell().action() # touche . sur le clavier
+            KEY_EXE : lambda : self.grid_focused.get_focused_cell().action() # touche . sur le clavier
             # On remplacera ans par exe et ans servira a mettre le dernier  résutat dans le calcul
         }
 
         self.text_mode_actions = {
             KEY_BACKSPACE : lambda : self.focused_button.del_char() ,
-            "lettres" : [KEY_ONE,KEY_TWO,KEY_THREE,KEY_FOUR,KEY_FIVE,KEY_SIX,KEY_SEVEN,KEY_EIGHT,KEY_NINE, KEY_ZERO, KEY_ANS, KEY_COMMA]
+            "lettres" : [KEY_ONE,KEY_TWO,KEY_THREE,KEY_FOUR,KEY_FIVE,KEY_SIX,KEY_SEVEN,KEY_EIGHT,KEY_NINE, KEY_ZERO, KEY_ANS, KEY_DOT, KEY_SHIFT]
         }
 
         
@@ -466,15 +474,12 @@ class class_interface() :
         for i in self.actions.keys() : 
                 if keydown(i) : 
                     if self.text_mode : 
-                        self.focused_button.exit_text_mode()
-                        print("STOP text mode")
-                        self.text_mode = False
+                        self.exit_text_mode()
                     result = self.actions[i]()
                     self.focused_button = self.grid_focused.get_focused_cell()
                     if result == "TEXT MODE"  :
                         print("Text mode in interface") 
-                        self.text_mode = True
-                        self.focused_button.enter_text_mode()
+                        self.enter_text_mode()
 
                     time.sleep(self.action_rate_constant)
                     continue
@@ -484,12 +489,25 @@ class class_interface() :
             self.text_mode_actions[KEY_BACKSPACE]()
             time.sleep(self.action_rate_constant)
         else : 
+
             for j in self.text_mode_actions["lettres"] : 
                 if keydown(j) : 
                     self.focused_button.add_char_with_action(j)
                     time.sleep(self.action_rate_constant)
                     break
-            
+    
+    def enter_text_mode(self) : 
+        self.text_mode = True
+        self.focused_button.enter_text_mode()
+
+    def exit_text_mode(self) : 
+        self.text_mode = False
+        self.focused_button.exit_text_mode()
+
+
+def activate_text_mode() : 
+    print("Text mode activated")
+    interface.enter_text_mode()
 
 grid = class_liste_principale()
 interface = class_interface(grid, None)
