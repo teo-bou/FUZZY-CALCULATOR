@@ -147,7 +147,11 @@ class classtextinput(class_bouton) :
             self.text = "CALC"
             self.draw()
     
-    def toggle_text_mode(self) :
+    def toggle_text_mode(self) :  
+        """
+        Ce fonctionnement est basé sur l'idée que c'est bien ce bouton qui est le text_focused_button quand toggle_text_mode est appelé
+        Et donc que c'est bien ce bouton qui va entrer ou sortir du mode texte, sinon on pourrais avoir plusieurs boutons en mode texte.
+        """
         if self.text_mode : 
             deactivate_text_mode()
         else : 
