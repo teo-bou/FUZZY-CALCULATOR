@@ -309,14 +309,13 @@ class class_liste_principale(class_grid) :
 
     def __init__(self) : 
         self.rows : list[tuple(class_bouton, classtextinput)]= []
-        ids = [i for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
-        self.ids = []
-        for i in range(10):
-            self.ids += [elem + str(i) for elem in ids]
+        ids = []
+        for j in range(10):
+            ids += [i + str(j) if j != 0 else i for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+        self.ids = ids
+        self.ifts = {ids: None for ids in self.ids}
 
-        
-
-        super().__init__(x_div=4, y_div=5)
+    super().__init__(x_div=4, y_div=5)
         for i in range(self.y_div) :
             self.append_list()
         # Ajouter les rows

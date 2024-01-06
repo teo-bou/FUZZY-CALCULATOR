@@ -1,6 +1,8 @@
 import math
 import random
-
+class Erreur:
+    def __init__(self, msg):
+        self.msg = msg
 
 class Intervalle_net_continu():
     def __init__(self, a1, a2):
@@ -25,11 +27,11 @@ class Intervalle_net_continu():
 
     def __pow__(self, value):
         if value != -1:
-            raise ValueError("Only -1 is supported")
+            return Erreur("Only -1 is supported")
         if self.a1 == 0 or self.a2 == 0:
-            raise ValueError("Only non-zero intervals are supported")
+            return Erreur("Only non-zero intervals are supported")
         if self.a1 <= 0 <= self.a2:
-            raise ValueError("Only  strictly positive or strictly négative intervals are supported by this operation.")
+            return Erreur("Only  strictly positive or strictly négative intervals are supported by this operation.")
         return Intervalle_net(1 / self.a2, 1 / self.a1)
 
     def __div__(self, other):
@@ -37,7 +39,7 @@ class Intervalle_net_continu():
 
     def union(self, other):
         if self.a2 < other.a1 or other.a2 < self.a1:
-            raise ValueError("The intervals must be joined")
+            return Erreur("The intervals must be joined")
 
         return Intervalle_net(min(self.a1, other.a1), max(self.a2, other.a2))
 
@@ -45,12 +47,12 @@ class Intervalle_net_continu():
 class Intervalle_net():
     def __init__(self, *args):
         if len(args % 2 != 0):
-            raise ValueError("The number of arguments must be even")
+            return Erreur("The number of arguments must be even")
 
         self.intervalles_continus = []
         for i in range(0, len(args), 2):
             if args[i] >= args[i + 1]:
-                raise ValueError("The arguments must be ordered")
+                return Erreur("The arguments must be ordered")
             self.intervalles_continus.append(Intervalle_net_continu(args[i], args[i + 1]))
 
     def simplifier(self):
@@ -65,12 +67,12 @@ class Intervalle_net():
                     break
 
 
-class Trapèseflou():
+class IFT():
     def __init__(self, a1, a2, a3, a4, h=1):
         if not (a1 <= a2 <= a3):
-            raise ValueError("The arguments must be ordered")
+            return Erreur("The arguments must be ordered")
         if h <= 0:
-            raise ValueError("The height must be positive")
+            return Erreur("The height must be positive")
         self.a1 = a1
         self.a2 = a2
         self.a3 = a3
@@ -83,17 +85,17 @@ class Trapèseflou():
         else:
             ift = self
             other = other.troncature(self.h)
-        return Trapèseflou(ift.a1 + other.a1, ift.a2 + other.a2, ift.a3 + other.a3, ift.a4 + other.a4, ift.h)
+        return IFT(ift.a1 + other.a1, ift.a2 + other.a2, ift.a3 + other.a3, ift.a4 + other.a4, ift.h)
 
     def __mul__(self, other):
-        if isinstance(other, Trapèseflou):  # si l'autre élément est lui même un IFT
+        if isinstance(other, IFT):  # si l'autre élément est lui même un IFT
             ift = other
             if self.h > ift.h:
                 ift1 = self.troncature(ift.h)
             else:
                 ift1 = self
                 ift = ift.troncature(self.h)
-            return Trapèseflou(ift1.a1 * ift.a1, ift1.a2 * ift.a2, ift1.a3 * ift.a3, ift1.a4 * ift.a4, ift1.h)
+            return IFT(ift1.a1 * ift.a1, ift1.a2 * ift.a2, ift1.a3 * ift.a3, ift1.a4 * ift.a4, ift1.h)
         else:  # si l'autre élément est un scalaire
             alpha = other
             if alpha > 0:
@@ -106,11 +108,11 @@ class Trapèseflou():
                 a2 = alpha * self.a3
                 a3 = alpha * self.a2
                 a4 = alpha * self.a1
-            return Trapèseflou(a1, a2, a3, a4, self.h)
+            return IFT(a1, a2, a3, a4, self.h)
 
     def __pow__(self, value):
         if value == -1:
-            return Trapèseflou(1 / self.a4, 1 / self.a3, 1 / self.a2, 1 / self.a1, self.h)
+            return IFT(1 / self.a4, 1 / self.a3, 1 / self.a2, 1 / self.a1, self.h)
         elif value == 1:
             return self
         else:
@@ -121,7 +123,7 @@ class Trapèseflou():
         return self * (other ** -1)
 
     def __neg__(self):
-        return Trapèseflou(-self.a4, -self.a3, -self.a2, -self.a1, self.h)
+        return IFT(-self.a4, -self.a3, -self.a2, -self.a1, self.h)
 
     def __sub__(self, other):
         return self + (-other)
@@ -129,13 +131,13 @@ class Trapèseflou():
     def troncature(self, h):
         """Fait une troncature de l'ITF en h"""
         if h > self.h:
-            raise ValueError("H est au dessus de la hauteur de l'intervalle")
+            return Erreur("H est au dessus de la hauteur de l'intervalle")
         elif h == self.h:
             return self
         else:
             a2 = h * (self.a2 - self.a1) / self.h + self.a1
             a3 = - h * (self.a4 - self.a3) / self.h + self.a4
-            return Trapèseflou(self.a1, a2, a3, self.a4, h)
+            return IFT(self.a1, a2, a3, self.a4, h)
 
     def __str__(self) -> str:
         return f"({self.a1}, {self.a2}, {self.a3}, {self.a4}, {self.h})"
