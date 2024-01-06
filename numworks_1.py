@@ -315,7 +315,7 @@ class class_liste_principale(class_grid) :
         self.ids = ids
         self.ifts = {ids: None for ids in self.ids}
 
-    super().__init__(x_div=4, y_div=5)
+        super().__init__(x_div=4, y_div=5)
         for i in range(self.y_div) :
             self.append_list()
         # Ajouter les rows
