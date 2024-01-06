@@ -33,8 +33,9 @@ Voici les nouveaux controles :
     - créer un curseur pour la navigation
 
 - CREER LA CALCULATRICE
-    - Creer les objets flouss (IFT, NTF, Intervalles, etc..0)
+    - Creer les objets flous (IFT, NTF, Intervalles, etc..0) done ! 
     - intégrer les calculs avec l'interface
+    
 
 # Attention
 
@@ -53,8 +54,11 @@ Tout cela n'est pas permis par la numworks qui ne supporte pas ces feature de py
 **la class bouton** : il fit dans la grid, il contient des infos sur ou il est dans la grid. De la, c'est la grid qui lui donne sa position sur l'écran, et sa taille pour qu'il puisse etre déssiné
 
 
-**la class textinput** : c'est un dérivé de la classe bouton mais en plus de  ca, son action quand activé est de lancer le text mode, il a aussi ka fonction add char et del char qui permettent d'ajouter et retirer les caractère. Il a également deux méthode : enter_text_mode et exit_text_mode
+**la class textinput** : c'est un dérivé de la classe bouton mais en plus de  ca, son action quand activé est de lancer le text mode, il a aussi ka fonction add char et del char qui permettent d'ajouter et retirer les caractère. Il a également deux méthode : enter_text_mode et exit_text_mode. Son action est toujours : toggle text mode : si il est en text mode il en sors, et si il est en dehors du text mode il y entre. 
 
+
+
+**la class bouton valeur** Cette classe représente les boutons qui sont a gauche des calcul. Elle permettent d'ajouter leur id au calcul en cour simplement en se déplaceemnt et en appuyant sur entrée. Elle définis simplement l'action d'ajouter son id a l'input qui est focused.
 
 **la class grid** : Elle a une hauteur et une largeur. Elle divise l'écran et contient les boutons. Elle contient également l'information de la cellule sur la quelle on est focus. C'est aussi elle qui gère le fait de focuser une de ses cell, et de déplacer le focus vers le haut ou le bas. on y ajoute des boutons via add bouton. 
 
