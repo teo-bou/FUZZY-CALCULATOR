@@ -102,7 +102,7 @@ class classtextinput(class_bouton) :
         - exit text_mode est appellé quand l'interface quitte le mode texte et permet de remettre le texte par défaut si on a rien écrit
     """
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
-        action = lambda : self.text_mode()
+        action = lambda : activate_text_mode()
         super().__init__(text, color, x, y, focused, action)
         self.key_to_char = {
             KEY_ONE : "1",
@@ -149,6 +149,15 @@ class classtextinput(class_bouton) :
             self.draw()
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
+
+class boutonvaleur(class_bouton) :
+    def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
+        self.char = text[0]
+        action = lambda : ajouter_lettre(self.char)        
+        super().__init__(text, color, x, y, focused, action)
+
+
+    
 
 class class_bouton_calcul(classtextinput) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
@@ -414,7 +423,7 @@ class class_liste_principale(class_grid) :
             print("Plus de lettres")
             return
         bouton_calcul = class_bouton_calcul("CALC", black, [1, 2, 3], [y_pos])
-        bouton_valeur = class_bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
+        bouton_valeur = boutonvaleur(self.ids.pop(0) + " = ", white,[0], [y_pos])
         self.add_button(bouton_calcul)
         self.add_button(bouton_valeur)
         self.rows.append((bouton_valeur, bouton_calcul))
@@ -433,12 +442,12 @@ class class_liste_principale(class_grid) :
             print(y, self.y_div -1)
             super().travel_y(i)
 
-"""
-class menu_secondaire(class_grid) : 
+
+class menu_secondaire(class_grid) : # Le menu secondaire va permettre d'ajouter les types d'intervalles (et quelques fonctions ? Comme T troncature/ elevations, )
     def __init__(self) : 
         super().__init__(x_div=4, y_div=5)
-"""
-
+            
+        
 
 
 class class_interface() : 
@@ -446,6 +455,7 @@ class class_interface() :
         self.main_grid = grid
         self.menu = menu
         self.text_mode = False
+        self.text_focused_button = None
         self.grid_focused = self.main_grid
         self.focused_button : classtextinput = self.grid_focused.get_focused_cell()
 
@@ -459,11 +469,9 @@ class class_interface() :
         }
 
         self.text_mode_actions = {
-            KEY_BACKSPACE : lambda : self.focused_button.del_char() ,
+            KEY_BACKSPACE : lambda : self.text_focused_button.del_char() ,
             "lettres" : [KEY_ONE,KEY_TWO,KEY_THREE,KEY_FOUR,KEY_FIVE,KEY_SIX,KEY_SEVEN,KEY_EIGHT,KEY_NINE, KEY_ZERO, KEY_ANS, KEY_DOT, KEY_SHIFT]
         }
-
-        
 
         self.action_rate_constant = 0.15
     
@@ -485,10 +493,10 @@ class class_interface() :
     def scan_actions(self) : 
         for i in self.actions.keys() : 
                 if keydown(i) : 
-                    if self.text_mode : 
-                        self.exit_text_mode()
+                    
                     result = self.actions[i]()
                     self.focused_button = self.grid_focused.get_focused_cell()
+
                     if result == "TEXT MODE"  :
                         print("Text mode in interface") 
                         self.enter_text_mode()
@@ -504,12 +512,15 @@ class class_interface() :
 
             for j in self.text_mode_actions["lettres"] : 
                 if keydown(j) : 
-                    self.focused_button.add_char_with_action(j)
+                    self.text_focused_button.add_char_with_action(j)
                     time.sleep(self.action_rate_constant)
                     break
     
     def enter_text_mode(self) : 
         self.text_mode = True
+        if self.text_focused_button != None :
+            self.text_focused_button.exit_text_mode()
+        self.text_focused_button = self.focused_button
         self.focused_button.enter_text_mode()
 
     def exit_text_mode(self) : 
@@ -517,7 +528,8 @@ class class_interface() :
         self.focused_button.exit_text_mode()
 
 
-
+def ajouter_lettre(char) :
+    interface.text_focused_button.add_char(char)
 
 def activate_text_mode() : 
     print("Text mode activated")
