@@ -361,7 +361,6 @@ class class_liste_principale(class_grid) :
         if self.affichable(cell) :
             self[y][x] = None
         cell.changer_coordonnees(y=-1)
-        self.updater_coordonees(cell)
         if self.affichable(cell) :
             self[y-1][x] = cell
             cell.draw()
@@ -375,7 +374,6 @@ class class_liste_principale(class_grid) :
         if self.affichable(cell) :
             self[y][x] = None
         cell.changer_coordonnees(y=1)
-        self.updater_coordonees(cell)
         if self.affichable(cell) :
             self[y+1][x] = cell 
             cell.draw()
