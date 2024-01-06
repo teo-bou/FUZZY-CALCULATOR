@@ -44,7 +44,6 @@ Voici les nouveaux controles :
 - Les f string ne sont pas supportées
 - On ne peut pas utiliser *variable_liste pour passer les éléments d'une liste d'un coup
 - Les ```raise error``` ne fonctionnent pas
-- Les variables ne doivent pas avoir de majuscule.
 - On ne peut pas importer de fonction spécifique. C'est pourquoi on est forcé d'écrire : ```from package import *```
 
 
