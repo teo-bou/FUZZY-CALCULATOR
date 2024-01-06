@@ -412,6 +412,7 @@ class class_liste_principale(class_grid) :
         """
         fait monter tout les boutons
         """
+        self.get_focused_cell().unfocus()
         for i in self.rows : 
             self.move_up(i[0])
             self.move_up(i[1])
@@ -456,8 +457,6 @@ class menu_secondaire(class_grid) : # Le menu secondaire va permettre d'ajouter 
         super().__init__(x_div=4, y_div=5)
             
         
-
-
 class class_interface() : 
     def __init__(self, grid : class_liste_principale, menu = class_grid) : 
         self.main_grid = grid
