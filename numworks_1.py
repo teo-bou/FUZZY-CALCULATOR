@@ -53,24 +53,21 @@ class class_bouton :
 
 
         self.grid_coordinates = [self.x[0], self.y[0]]
+        self.grid = None
     
 
     def draw(self) : 
-        if self.height is None or self.width is None or self.coordinates is None : 
-            pass
+        self.updater_coordonnees()
             #raise ValueError(f"height, width, cordinates not set, button {self.text} at {self.grid_coordinates} must not be in grid yet")
         color = self.color if not self.focused else self.focused_color
         left_top = (self.coordinates[0], self.coordinates[1]) 
         fill_rect(left_top[0], left_top[1], self.width, self.height, color)
         draw_string(self.text, left_top[0], left_top[1], (0, 0, 0))
     
-    def put_in_grid(self) :
-        grid[self.grid_coordinates[1]][self.grid_coordinates[0]] = self
-        for i in self.x :
-            for j in self.y :
-                if i == self.x[0] and j == self.y[0] :
-                    continue
-                grid[j][i] = None  
+    def updater_coordonnees(self) :
+        if self.grid is None :
+            print("ERREUR", self.text, "n'est pas encore ajouté à une grille !")
+        self.grid.updater_coordonees(self)
     
     def focus(self) : 
         print(self.text,"at" ,self.grid_coordinates, "is focused")
@@ -122,6 +119,7 @@ class classtextinput(class_bouton) :
             KEY_DOT : ".",
             KEY_SHIFT : " ",
         }
+        
 
     def text_mode(self) : 
         print("TEXT MODE")
@@ -152,11 +150,19 @@ class classtextinput(class_bouton) :
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
 
-class bouton_calcul(classtextinput) :
+class class_bouton_calcul(classtextinput) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
         super().__init__(text, color, x, y, focused, action)
         self.resultat = None
     
+    def draw(self) : 
+        super().draw()
+        draw_string(str(self.resultat), self.coordinates[0], self.coordinates[1] + int(self.height/2), (0, 0, 0))
+    
+    def exit_text_mode(self):
+        self.resultat = self.text # pour test ici se jouera l'interpretation du calcul
+        super().exit_text_mode()
+
     
 
 class class_grid:
@@ -221,6 +227,8 @@ class class_grid:
         """
         #x, y = cell.grid_coordinates
         cell.coordinates = (cell.x[0] * self.cell_w + self.offset_x, cell.y[0] * self.cell_h + self.offset_y)
+        cell.height = self.cell_h * len(cell.y)
+        cell.width = self.cell_w * len(cell.x)
 
 
     def get_focused_cell(self) :
@@ -306,9 +314,8 @@ class class_grid:
                         continue
                     self.__grid[j][i] = None 
 
-        button.height = self.cell_h * len(button.y)
-        button.width = self.cell_w * len(button.x)
-        self.updater_coordonees(button)
+        button.grid = self
+        
     def draw(self) : 
         for row in self.__grid : 
             for cell in row : 
@@ -408,7 +415,7 @@ class class_liste_principale(class_grid) :
         if len(self.ids) == 0 :
             print("Plus de lettres")
             return
-        bouton_calcul = classtextinput("CALC", black, [1, 2, 3], [y_pos])
+        bouton_calcul = class_bouton_calcul("CALC", black, [1, 2, 3], [y_pos])
         bouton_valeur = class_bouton(self.ids.pop(0) + " = ", white,[0], [y_pos])
         self.add_button(bouton_calcul)
         self.add_button(bouton_valeur)
@@ -427,6 +434,13 @@ class class_liste_principale(class_grid) :
         else : 
             print(y, self.y_div -1)
             super().travel_y(i)
+
+"""
+class menu_secondaire(class_grid) : 
+    def __init__(self) : 
+        super().__init__(x_div=4, y_div=5)
+"""
+
 
 
 class class_interface() : 
@@ -503,6 +517,8 @@ class class_interface() :
     def exit_text_mode(self) : 
         self.text_mode = False
         self.focused_button.exit_text_mode()
+
+
 
 
 def activate_text_mode() : 
