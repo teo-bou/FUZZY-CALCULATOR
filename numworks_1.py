@@ -169,7 +169,7 @@ class boutonvaleur(class_bouton) :
 class class_bouton_calcul(classtextinput) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
         super().__init__(text, color, x, y, focused, action)
-        self.resultat = None
+        self.resultat = ""
     
     def draw(self) : 
         super().draw()
@@ -181,7 +181,6 @@ class class_bouton_calcul(classtextinput) :
         self.draw()  # Oui, risque de redraw alors qu'on a déja draw parce que texte vide. A voir comment ca se fix
 
     
-
 class class_grid:
     """
     La grille contient l'ensemble des boutons. Ici, chaque élément est appellé une "cell".
@@ -395,7 +394,6 @@ class class_liste_principale(class_grid) :
             self[y+1][x] = cell 
             cell.draw()
         
-
     def go_down(self) : 
         """
         fait descendre tout les boutons
@@ -421,7 +419,6 @@ class class_liste_principale(class_grid) :
         self.focus_cell(self[y][x])
         
         
-
     def append_list(self) : 
         print("APPEND LIST")
         if len(self.rows) == 0 :
@@ -437,7 +434,7 @@ class class_liste_principale(class_grid) :
         self.add_button(bouton_valeur)
         self.rows.append((bouton_valeur, bouton_calcul))
 
-    def travel_y(self, i):
+    def travel_y(self, i): # OVERWRITE LA FONCTION ORIGINALE
         y = self.focused[1]
         if y == 0 and i == -1 and self.rows[0][0].grid_coordinates[1] != 0:  # On est en haut et on veut monter et il y a des boutons au dessus
             print("GO DOWN")
@@ -448,7 +445,7 @@ class class_liste_principale(class_grid) :
             print("GO UP") 
             self.go_up()
         else : 
-            print(y, self.y_div -1)
+            #print(y, self.y_div -1)
             super().travel_y(i)
 
 
