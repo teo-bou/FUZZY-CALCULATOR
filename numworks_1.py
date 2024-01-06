@@ -102,7 +102,7 @@ class classtextinput(class_bouton) :
         - exit text_mode est appellé quand l'interface quitte le mode texte et permet de remettre le texte par défaut si on a rien écrit
     """
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
-        action = lambda : activate_text_mode()
+        action = lambda : self.toggle_text_mode()
         super().__init__(text, color, x, y, focused, action)
         self.key_to_char = {
             KEY_ONE : "1",
@@ -119,12 +119,8 @@ class classtextinput(class_bouton) :
             KEY_DOT : ".",
             KEY_SHIFT : " ",
         }
+        self.text_mode = False
         
-
-    def text_mode(self) : 
-        print("TEXT MODE")
-        return "TEXT MODE"
-
     def add_char(self, char) :
         self.text += char
         draw_string(self.text, self.coordinates[0], self.coordinates[1], (0, 0, 0))
@@ -139,14 +135,23 @@ class classtextinput(class_bouton) :
         self.draw()
     
     def enter_text_mode(self) : 
+        self.text_mode = True
         if self.text == "CALC" : 
             self.text = ""
+            
             self.draw()
     
     def exit_text_mode(self) :
+        self.text_mode = False
         if self.text == "" : 
             self.text = "CALC"
             self.draw()
+    
+    def toggle_text_mode(self) :
+        if self.text_mode : 
+            deactivate_text_mode()
+        else : 
+            activate_text_mode()
           ## AJOUTER UN COURSEUR ET DES M2THODE POUR TRAVAILLER AVEC DU TEXTE
 
 
@@ -156,8 +161,6 @@ class boutonvaleur(class_bouton) :
         action = lambda : ajouter_lettre(self.char)        
         super().__init__(text, color, x, y, focused, action)
 
-
-    
 
 class class_bouton_calcul(classtextinput) :
     def __init__(self, text, color, x:list[int], y : list[int], focused = False, action = lambda : None) :
@@ -171,6 +174,7 @@ class class_bouton_calcul(classtextinput) :
     def exit_text_mode(self):
         self.resultat = self.text # pour test ici se jouera l'interpretation du calcul
         super().exit_text_mode()
+        self.draw()  # Oui, risque de redraw alors qu'on a déja draw parce que texte vide. A voir comment ca se fix
 
     
 
@@ -525,16 +529,23 @@ class class_interface() :
 
     def exit_text_mode(self) : 
         self.text_mode = False
-        self.focused_button.exit_text_mode()
+        if self.text_focused_button != None :
+            self.text_focused_button.exit_text_mode()
+            self.text_focused_button = None
 
 
 def ajouter_lettre(char) :
+    if interface.text_focused_button == None : 
+        return
     interface.text_focused_button.add_char(char)
 
 def activate_text_mode() : 
     print("Text mode activated")
     interface.enter_text_mode()
 
+def deactivate_text_mode() : 
+    print("Text mode deactivated")
+    interface.exit_text_mode()
 grid = class_liste_principale()
 interface = class_interface(grid, None)
 interface.main_loop()
